@@ -1,30 +1,70 @@
 $(() => {
-  // Select table containing the battleground
   const battleground = $('#battleground');
-
-  // Build 10 x 10 grid for battleground
   for (let row = 0; row < 10; row++) {
-    // Create table row
     const tr = $('<tr>');
     for (let column = 0; column < 10; column++) {
-      // Create table cell with CSS class `water`. Note that we use
-      // HTML data attributes  to store the coordinates of each cell
-      // (see https://developer.mozilla.org/en-US/docs/Learn/HTML/Howto/Use_data_attributes). 
-      // That makes it much easier to find cells based on coordinates later.
       $('<td>').addClass('water').attr('data-r', row).attr('data-c', column).appendTo(tr);
     }
-
-    // Add table row to battleground table
     tr.appendTo(battleground);
   }
-
   $('#generate').click(() => {
-    // Here you have to add your code for building a random battleground.
-
-    // Tip: The next line of code demonstrates how you can select a table cell
-    // using coordinates, remove CSS classes and add CSS classes. 
-    $('td[data-r="1"][data-c="1"]').removeClass('water').addClass('ship');
-    $('td[data-r="2"][data-c="1"]').removeClass('water').addClass('ship');
-    $('td[data-r="3"][data-c="1"]').removeClass('water').addClass('ship');
+    removeAll();
+    generateShips(2); generateShips(3); generateShips(3); generateShips(4); generateShips(5);
   });
 });
+function generateShips(size) {
+  const firstCell = 1;
+  const lastCell = 9 - size;
+  direction = defineDirection();
+
+  var freeFound = false;
+
+  do {
+    row = createRandomField(firstCell, lastCell);
+    cell = createRandomField(firstCell, lastCell);
+    var freeFound = findFreeSpace(size, row, cell, direction);
+  } while (!freeFound);
+
+  if (freeFound === true) {
+    if (direction === 1) {
+      placeShipsVertically(size, row, cell);
+    } else {
+      placeShipsHorizontally(size, row, cell);
+    }
+  }
+  function defineDirection() {
+    return Math.floor(Math.random() * 2) + 1;
+  }
+  function createRandomField(firstCell, lastCell) {
+    return Math.floor(Math.random() * lastCell) + firstCell;
+  }
+} 
+function findFreeSpace(size, row, cell, direction) {
+  for (i = 0; i < size + 1; i++) {
+    if ($('td[data-r="' + row + '"][data-c="' + cell + '"]').hasClass('water')) {
+    } else {
+      return false;
+    }
+    if (direction === 1) row++; else cell++;
+  }
+  return true;
+}
+function placeShipsVertically(size, row, cell) {
+  for (i = 0; i < size; i++) {
+    $('td[data-r="' + row + '"][data-c="' + cell + '"]').removeClass('water').addClass('ship');
+    row++;
+  }
+}
+function placeShipsHorizontally(size, row, cell) {
+  for (i = 0; i < size; i++) {
+    $('td[data-r="' + row + '"][data-c="' + cell + '"]').removeClass('water').addClass('ship');
+    cell++;
+  }
+}
+function removeAll() {
+  for (i = 0; i < 10; i++) {
+    for (j = 0; j < 10; j++) {
+      $('td[data-r="' + i + '"][data-c="' + j + '"]').removeClass('ship').addClass('water');
+    }
+  }
+}
